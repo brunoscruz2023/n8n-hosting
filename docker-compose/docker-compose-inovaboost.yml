@@ -1,0 +1,124 @@
+version: "3.7"
+
+services:
+  # Definição do Serviço do Editor do N8N
+  n8n_editor:
+    image: n8nio/n8n:latest
+    command: start
+    networks:
+      - rede_geral
+    ports:
+      - "5678:5678"  # Mapeando a porta 5678 do container para a porta 5678 do host
+    environment:
+      - DB_TYPE=postgresdb
+      - DB_POSTGRESDB_DATABASE=n8ndb
+      - DB_POSTGRESDB_HOST=postgres  # Defina aqui o host do PostgreSQL externo
+      - DB_POSTGRESDB_PORT=5432      # Defina a porta correta do PostgreSQL
+      - DB_POSTGRESDB_USER=admin
+      - DB_POSTGRESDB_PASSWORD=h2oco2
+      - N8N_ENCRYPTION_KEY=r3djGX2vPoeL9zKL
+      - N8N_HOST=localhost
+      - N8N_EDITOR_BASE_URL=http://localhost:5678  # Altere para localhost
+      - N8N_PROTOCOL=http  # Remover SSL
+      - NODE_ENV=production
+      - WEBHOOK_URL=http://localhost:5678/  # Altere para localhost
+      - EXECUTIONS_MODE=queue
+      - N8N_REINSTALL_MISSING_PACKAGES=true
+      - N8N_COMMUNITY_PACKAGES_ENABLED=true
+      - N8N_NODE_PATH=/home/note/.n8n/nodes
+      - QUEUE_BULL_REDIS_HOST=redis  # Redis local
+      - QUEUE_BULL_REDIS_PORT=6379
+      - QUEUE_BULL_REDIS_DB=2
+      - NODE_FUNCTION_ALLOW_EXTERNAL=moment,lodash,moment-with-locales
+      - EXECUTIONS_DATA_PRUNE=true
+      - EXECUTIONS_DATA_MAX_AGE=336
+      - GENERIC_TIMEZONE=America/Sao_Paulo
+      - TZ=America/Sao_Paulo
+      - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
+    # Limitação de recursos
+    mem_limit: 1024m  # Limitação de memória (1GB)
+    cpus: 1  # Limitação de CPU
+
+  # Definição do Serviço de Webhook do N8N
+  n8n_webhook:
+    image: n8nio/n8n:latest
+    command: webhook
+    networks:
+      - rede_geral
+    ports:
+      - "5679:5678"  # Mapeando a porta 5679 do container para a porta 5678 do host
+    environment:
+      - DB_TYPE=postgresdb
+      - DB_POSTGRESDB_DATABASE=n8ndb
+      - DB_POSTGRESDB_HOST=postgres  # Defina aqui o host do PostgreSQL externo
+      - DB_POSTGRESDB_PORT=5432      # Defina a porta correta do PostgreSQL
+      - DB_POSTGRESDB_USER=postgres
+      - DB_POSTGRESDB_PASSWORD=admin123
+      - N8N_ENCRYPTION_KEY=r3djGX2vPoeL9zKL
+      - N8N_HOST=localhost
+      - N8N_EDITOR_BASE_URL=http://localhost:5678  # Altere para localhost
+      - N8N_PROTOCOL=http  # Remover SSL
+      - NODE_ENV=production
+      - WEBHOOK_URL=http://localhost:5678/  # Altere para localhost
+      - EXECUTIONS_MODE=queue
+      - N8N_REINSTALL_MISSING_PACKAGES=true
+      - N8N_COMMUNITY_PACKAGES_ENABLED=true
+      - N8N_NODE_PATH=/home/note/.n8n/nodes
+      - QUEUE_BULL_REDIS_HOST=redis  # Redis local
+      - QUEUE_BULL_REDIS_PORT=6379
+      - QUEUE_BULL_REDIS_DB=2
+      - NODE_FUNCTION_ALLOW_EXTERNAL=moment,lodash,moment-with-locales
+      - EXECUTIONS_DATA_PRUNE=true
+      - EXECUTIONS_DATA_MAX_AGE=336
+      - GENERIC_TIMEZONE=America/Sao_Paulo
+      - TZ=America/Sao_Paulo
+      - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
+    # Limitação de recursos
+    mem_limit: 1024m  # Limitação de memória (1GB)
+    cpus: 1  # Limitação de CPU
+
+  # Definição do Serviço Worker do N8N
+  n8n_worker:
+    image: n8nio/n8n:latest
+    command: worker --concurrency=10
+    networks:
+      - rede_geral
+    environment:
+      - DB_TYPE=postgresdb
+      - DB_POSTGRESDB_DATABASE=n8ndb
+      - DB_POSTGRESDB_HOST=postgres  # Defina aqui o host do PostgreSQL externo
+      - DB_POSTGRESDB_PORT=5432      # Defina a porta correta do PostgreSQL
+      - DB_POSTGRESDB_USER=admin
+      - DB_POSTGRESDB_PASSWORD=h2oco2
+      - N8N_ENCRYPTION_KEY=r3djGX2vPoeL9zKL
+      - N8N_HOST=localhost
+      - N8N_EDITOR_BASE_URL=http://localhost:5678  # Altere para localhost
+      - N8N_PROTOCOL=http  # Remover SSL
+      - NODE_ENV=production
+      - WEBHOOK_URL=http://localhost:5678/  # Altere para localhost
+      - EXECUTIONS_MODE=queue
+      - N8N_REINSTALL_MISSING_PACKAGES=true
+      - N8N_COMMUNITY_PACKAGES_ENABLED=true
+      - N8N_NODE_PATH=/home/note/.n8n/nodes
+      - QUEUE_BULL_REDIS_HOST=redis  # Redis local
+      - QUEUE_BULL_REDIS_PORT=6379
+      - QUEUE_BULL_REDIS_DB=2
+      - NODE_FUNCTION_ALLOW_EXTERNAL=moment,lodash,moment-with-locales
+      - EXECUTIONS_DATA_PRUNE=true
+      - EXECUTIONS_DATA_MAX_AGE=336
+      - GENERIC_TIMEZONE=America/Sao_Paulo
+      - TZ=America/Sao_Paulo
+      - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
+    # Limitação de recursos
+    mem_limit: 1024m  # Limitação de memória (1GB)
+    cpus: 1  # Limitação de CPU
+
+networks:
+  rede_geral:
+    external: true
+    name: rede_geral  # Rede externa para comunicação entre os containers
+
+volumes:
+  n8n:
+    external: false
+    name: n8n  # Volume do N8N para persistir dados de configuração
